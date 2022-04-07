@@ -17,7 +17,22 @@ Then alter your homeserver configuration, adding to your `modules` configuration
 modules:
   - module: synapse_patch_push_rules.PushRulesPatcher
     config:
-      # TODO: Complete this section with an example for your module
+      # Rules to set when new users register.
+      # Required.
+      rules:
+        # The rule ID. Must be unique within rules of the same kind.
+        my_rule:
+          # See https://spec.matrix.org/latest/client-server-api/#push-rules for a
+          # reference on the allowed values and format for 'kind', 'conditions' and
+          # 'actions'.
+          # 'kind', 'conditions' and 'actions' are all required.
+          kind: "content"
+          conditions:
+            - kind: "event_match"
+              key: "content.body"
+              pattern: "testword"
+          actions:
+            - "notify"
 ```
 
 
@@ -75,11 +90,7 @@ Synapse developers (assuming a Unix-like shell):
     git push origin tag v$version
     ```
 
- 7. If applicable:
-    Create a *release*, based on the tag you just pushed, on GitHub or GitLab.
-
- 8. If applicable:
-    Create a source distribution and upload it to PyPI:
+ 7. Create a source distribution and upload it to PyPI:
     ```shell
     python -m build
     twine upload dist/synapse_patch_push_rules-$version*
