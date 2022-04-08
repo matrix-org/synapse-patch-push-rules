@@ -38,11 +38,11 @@ class PushRulesPatcherTestCase(aiounittest.AsyncTestCase):
         """Tests that, when configuring the module with multiple rules and calling the
         callback, each rule is changed for the newly registered user.
         """
-        rule_id1 = "foo"
-        rule_id2 = "bar"
+        rule_id1 = ".m.rule.message"
+        rule_id2 = ".m.rule.encrypted"
         actions1 = ["dont_notify"]
         actions2 = ["notify"]
-        kind = "content"
+        kind = "underride"
         user_id = "@user:example.com"
 
         # Configure the module with 2 different rules.
