@@ -23,13 +23,16 @@ modules:
         # The rule ID. Must be one of the predefined rules defined in the Matrix
         # specification. See https://spec.matrix.org/latest/client-server-api/#predefined-rules
         # for a complete list.
-        my_rule:
+        ".m.rule.message":
+          # The kind (override, underride or content) of the rule being modified.
+          # Required.
+          kind: "underride"
+          # The new actions for this rule.
           # See https://spec.matrix.org/latest/client-server-api/#push-rules for a
-          # reference on the allowed values and format for 'kind' and 'actions'.
-          # 'kind' and 'actions' are both required.
-          kind: "content"
+          # reference on the allowed values and format.
+          # Required.
           actions:
-            - "notify"
+            - "dont_notify"
 ```
 
 
