@@ -39,6 +39,7 @@ def create_module(config: Optional[Dict[str, Any]] = None) -> PushRulesPatcher:
     module_api = Mock(spec=ModuleApi)
     module_api.set_push_rule_action = Mock(return_value=make_awaitable(None))
     module_api.worker_app = None
+    module_api.check_push_rule_actions = Mock(return_value=True)
 
     # If necessary, give parse_config some configuration to parse.
     if config is None:
