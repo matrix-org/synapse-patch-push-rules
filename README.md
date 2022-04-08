@@ -1,6 +1,6 @@
 # Push rules patcher
 
-Synapse module to create specific push rules when a new user registers
+Synapse module to change the actions of specific push rules when a new user registers.
 
 
 ## Installation
@@ -17,20 +17,17 @@ Then alter your homeserver configuration, adding to your `modules` configuration
 modules:
   - module: synapse_patch_push_rules.PushRulesPatcher
     config:
-      # Rules to set when new users register.
+      # Rules to change with new actions when new users register.
       # Required.
       rules:
-        # The rule ID. Must be unique within rules of the same kind.
+        # The rule ID. Must be one of the predefined rules defined in the Matrix
+        # specification. See https://spec.matrix.org/latest/client-server-api/#predefined-rules
+        # for a complete list.
         my_rule:
           # See https://spec.matrix.org/latest/client-server-api/#push-rules for a
-          # reference on the allowed values and format for 'kind', 'conditions' and
-          # 'actions'.
-          # 'kind', 'conditions' and 'actions' are all required.
+          # reference on the allowed values and format for 'kind' and 'actions'.
+          # 'kind' and 'actions' are both required.
           kind: "content"
-          conditions:
-            - kind: "event_match"
-              key: "content.body"
-              pattern: "testword"
           actions:
             - "notify"
 ```

@@ -34,15 +34,12 @@ class PushRulesPatcherTestCase(aiounittest.AsyncTestCase):
         with self.assertRaises(ConfigError):
             create_module({"rules": "hello"})
 
-    async def test_create_rules(self) -> None:
+    async def test_set_rule_actions(self) -> None:
         """Tests that, when configuring the module with multiple rules and calling the
-        callback, each rule is created for the newly registered user.
+        callback, each rule is changed for the newly registered user.
         """
         rule_id1 = "foo"
         rule_id2 = "bar"
-        conditions = [
-            {"kind": "event_match", "key": "content.body", "pattern": "testword"}
-        ]
         actions1 = ["dont_notify"]
         actions2 = ["notify"]
         kind = "content"
@@ -54,12 +51,10 @@ class PushRulesPatcherTestCase(aiounittest.AsyncTestCase):
                 "rules": {
                     rule_id1: {
                         "kind": kind,
-                        "conditions": conditions,
                         "actions": actions1,
                     },
                     rule_id2: {
                         "kind": kind,
-                        "conditions": conditions,
                         "actions": actions2,
                     },
                 }
@@ -70,24 +65,22 @@ class PushRulesPatcherTestCase(aiounittest.AsyncTestCase):
         await module.set_push_rules_for_user(user_id)
 
         # Check the module API got called twice, and with the right arguments.
-        add_push_rule_mock: Mock = module._api.add_push_rule_for_user  # type: ignore[assignment]
+        set_push_rule_action_mock: Mock = module._api.set_push_rule_action  # type: ignore[assignment]
 
-        self.assertEqual(add_push_rule_mock.call_count, 2)
+        self.assertEqual(set_push_rule_action_mock.call_count, 2)
 
-        add_push_rule_mock.assert_any_call(
+        set_push_rule_action_mock.assert_any_call(
             user_id=user_id,
             scope="global",
             kind=kind,
             rule_id=rule_id1,
-            conditions=conditions,
             actions=actions1,
         )
 
-        add_push_rule_mock.assert_any_call(
+        set_push_rule_action_mock.assert_any_call(
             user_id=user_id,
             scope="global",
             kind=kind,
             rule_id=rule_id2,
-            conditions=conditions,
             actions=actions2,
         )

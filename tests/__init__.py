@@ -37,7 +37,7 @@ def create_module(config: Optional[Dict[str, Any]] = None) -> PushRulesPatcher:
     # Create a mock based on the ModuleApi spec, but override some mocked functions
     # because some capabilities are needed for running the tests.
     module_api = Mock(spec=ModuleApi)
-    module_api.add_push_rule_for_user = Mock(return_value=make_awaitable(None))
+    module_api.set_push_rule_action = Mock(return_value=make_awaitable(None))
     module_api.worker_app = None
 
     # If necessary, give parse_config some configuration to parse.

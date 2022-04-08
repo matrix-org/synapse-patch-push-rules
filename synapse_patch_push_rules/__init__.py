@@ -24,16 +24,13 @@ logger = logging.getLogger(__name__)
 @attr.s(auto_attribs=True, frozen=True)
 class PushRule:
     kind: str
-    conditions: List[Dict[str, Any]]
-    actions: List[Union[str, Dict[str, str]]]
+    actions: Dict[str, List[Union[str, Dict[str, str]]]]
 
 
 class PushRulesPatcherConfig:
     def __init__(self, config: Dict[str, Any]) -> None:
         self.rules: Dict[str, PushRule] = {}
-
-        rules = config["rules"]
-        for rule_id, rule in rules.items():
+        for rule_id, rule in config["rules"].items():
             self.rules[rule_id] = PushRule(**rule)
 
 
@@ -42,6 +39,18 @@ class PushRulesPatcher:
         # Keep a reference to the config and Module API
         self._api = api
         self._config = config
+
+        # Check that the actions are valid.
+        for rule_id, rule in self._config.rules.items():
+            if not rule_id.startswith("."):
+                raise ConfigError(
+                    "Only the rules predefined in the Matrix specification are supported"
+                    " by this module. See https://spec.matrix.org/latest/client-server-api/#predefined-rules"
+                    " for a complete list."
+                )
+
+            if self._api.check_push_rule_actions(rule.actions) is False:
+                raise ConfigError("Invalid actions for rule %s" % rule_id)
 
         self._api.register_account_validity_callbacks(
             on_user_registration=self.set_push_rules_for_user,
@@ -71,11 +80,10 @@ class PushRulesPatcher:
             return
 
         for rule_id, rule in self._config.rules.items():
-            await self._api.add_push_rule_for_user(
+            await self._api.set_push_rule_action(
                 user_id=user_id,
                 scope="global",
                 kind=rule.kind,
                 rule_id=rule_id,
-                conditions=rule.conditions,
                 actions=rule.actions,
             )
