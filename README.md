@@ -1,6 +1,6 @@
 # Push rules patcher
 
-Synapse module to create specific push rules when a new user registers
+Synapse module to change the actions of specific push rules when a new user registers.
 
 
 ## Installation
@@ -17,7 +17,22 @@ Then alter your homeserver configuration, adding to your `modules` configuration
 modules:
   - module: synapse_patch_push_rules.PushRulesPatcher
     config:
-      # TODO: Complete this section with an example for your module
+      # Rules to change with new actions when new users register.
+      # Required.
+      rules:
+        # The rule ID. Must be one of the predefined rules defined in the Matrix
+        # specification. See https://spec.matrix.org/latest/client-server-api/#predefined-rules
+        # for a complete list.
+        ".m.rule.message":
+          # The kind (override, underride or content) of the rule being modified.
+          # Required.
+          kind: "underride"
+          # The new actions for this rule.
+          # See https://spec.matrix.org/latest/client-server-api/#push-rules for a
+          # reference on the allowed values and format.
+          # Required.
+          actions:
+            - "dont_notify"
 ```
 
 
@@ -75,11 +90,7 @@ Synapse developers (assuming a Unix-like shell):
     git push origin tag v$version
     ```
 
- 7. If applicable:
-    Create a *release*, based on the tag you just pushed, on GitHub or GitLab.
-
- 8. If applicable:
-    Create a source distribution and upload it to PyPI:
+ 7. Create a source distribution and upload it to PyPI:
     ```shell
     python -m build
     twine upload dist/synapse_patch_push_rules-$version*
