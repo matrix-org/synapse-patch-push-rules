@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Union
 
 import attr
 from synapse.module_api import ModuleApi
-from synapse.module_api.errors import ConfigError
+from synapse.module_api.errors import ConfigError, InvalidRuleException
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 @attr.s(auto_attribs=True, frozen=True)
 class PushRule:
     kind: str
-    actions: Dict[str, List[Union[str, Dict[str, str]]]]
+    actions: List[Union[str, Dict[str, str]]]
 
 
 class PushRulesPatcherConfig:
@@ -49,8 +49,10 @@ class PushRulesPatcher:
                     " for a complete list."
                 )
 
-            if self._api.check_push_rule_actions(rule.actions) is False:
-                raise ConfigError("Invalid actions for rule %s" % rule_id)
+            try:
+                self._api.check_push_rule_actions(rule.actions)
+            except InvalidRuleException as e:
+                raise ConfigError("Invalid actions for rule %s: %s" % (rule_id, e))
 
         self._api.register_account_validity_callbacks(
             on_user_registration=self.set_push_rules_for_user,
